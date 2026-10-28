@@ -25,6 +25,7 @@ enum ScreenLayoutType
     screenLayout_Vertical,
     screenLayout_Horizontal,
     screenLayout_Hybrid,
+    screenLayout_HorizontalBottomAligned,
     screenLayout_MAX,
 };
 

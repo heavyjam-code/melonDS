@@ -129,7 +129,8 @@ void ScreenLayout::Setup(int screenWidth, int screenHeight,
     bool swapScreens,
     float topAspect, float botAspect)
 {
-    HybEnable = screenLayout == 3;
+    const bool bottomAligned = screenLayout == screenLayout_HorizontalBottomAligned;
+    HybEnable = screenLayout == screenLayout_Hybrid;
     if (HybEnable)
     {
         screenLayout = screenLayout_Natural;
@@ -149,7 +150,7 @@ void ScreenLayout::Setup(int screenWidth, int screenHeight,
 
     int layout = screenLayout == screenLayout_Natural
         ? rotation % 2
-        : screenLayout - 1;
+        : (bottomAligned ? 1 : screenLayout - 1);
 
     float botScale = 1;
     float hybScale = 1;
@@ -387,6 +388,19 @@ void ScreenLayout::Setup(int screenWidth, int screenHeight,
                 botScale = (sizing == screenSizing_EmphTop) ? secScale : primScale;
             }
         }
+    }
+
+    // Align the lower edges in host coordinates for the dedicated horizontal
+    // layout, including when screens are rotated, swapped, or sized unevenly.
+    // Keep the reverse touch transform in step with the extra translation.
+    if (bottomAligned && TopEnable && BotEnable)
+    {
+        float bottomOffset = std::max(refpoints[0][1], refpoints[1][1]) -
+                             std::max(refpoints[2][1], refpoints[3][1]);
+        M23_Translate(BotScreenMtx, 0, bottomOffset);
+        refpoints[2][1] += bottomOffset;
+        refpoints[3][1] += bottomOffset;
+        botTrans[3] += bottomOffset;
     }
 
     // position

@@ -486,7 +486,8 @@ MainWindow::MainWindow(int id, EmuInstance* inst, QWidget* parent) :
                 QMenu * submenu = menu->addMenu("Screen layout");
                 grpScreenLayout = new QActionGroup(submenu);
 
-                const char *screenlayout[] = {"Natural", "Vertical", "Horizontal", "Hybrid"};
+                const char *screenlayout[] = {"Natural", "Vertical", "Horizontal", "Hybrid",
+                                            "Horizontal (bottom aligned)"};
 
                 for (int i = 0; i < screenLayout_MAX; i++)
                 {

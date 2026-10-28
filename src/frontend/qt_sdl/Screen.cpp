@@ -212,7 +212,8 @@ QSize ScreenPanel::screenGetMinSize(int factor = 1)
         else
             return QSize(w, h+gap+h);
     }
-    else if (screenLayout == screenLayout_Horizontal)
+    else if (screenLayout == screenLayout_Horizontal ||
+             screenLayout == screenLayout_HorizontalBottomAligned)
     {
         if (isHori)
             return QSize(h+gap+h, w);
