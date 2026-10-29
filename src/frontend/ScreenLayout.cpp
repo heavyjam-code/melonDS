@@ -349,22 +349,43 @@ void ScreenLayout::Setup(int screenWidth, int screenHeight,
                 float primScale = std::min(screenWidth / primHSize, screenHeight / primVSize);
                 float secScale = 1.f;
 
-                if (integerScale)
-                    primScale = floorf(primScale);
-
-                if (layout == 0)
+                if (bottomAligned)
                 {
-                    if (screenHeight - primVSize * primScale < secVSize)
-                        primScale = std::min(screenWidth / primHSize, (screenHeight - secVSize) / primVSize);
-                    else
-                        secScale = std::min((screenHeight - primVSize * primScale) / secVSize, screenWidth / secHSize);
+                    // Keep this layout's emphasized screen twice the size of
+                    // the secondary screen. Fit the pair together so a wide
+                    // viewport adds letterboxing instead of a tiny touchscreen.
+                    constexpr float emphasisRatio = 2.f;
+                    secScale = std::min(screenWidth / (primHSize * emphasisRatio + secHSize),
+                                        screenHeight / std::max(primVSize * emphasisRatio, secVSize));
+                    if (integerScale)
+                        secScale = floorf(secScale);
+                    primScale = secScale * emphasisRatio;
+                    // A small window may only fit both screens at native size.
+                    if (integerScale && secScale < 1.f)
+                    {
+                        primScale = secScale = floorf(std::min(screenWidth / (primHSize + secHSize),
+                                                             screenHeight / std::max(primVSize, secVSize)));
+                    }
                 }
                 else
                 {
-                    if (screenWidth - primHSize * primScale < secHSize)
-                        primScale = std::min((screenWidth - secHSize) / primHSize, screenHeight / primVSize);
+                    if (integerScale)
+                        primScale = floorf(primScale);
+
+                    if (layout == 0)
+                    {
+                        if (screenHeight - primVSize * primScale < secVSize)
+                            primScale = std::min(screenWidth / primHSize, (screenHeight - secVSize) / primVSize);
+                        else
+                            secScale = std::min((screenHeight - primVSize * primScale) / secVSize, screenWidth / secHSize);
+                    }
                     else
-                        secScale = std::min((screenWidth - primHSize * primScale) / secHSize, screenHeight / secVSize);
+                    {
+                        if (screenWidth - primHSize * primScale < secHSize)
+                            primScale = std::min((screenWidth - secHSize) / primHSize, screenHeight / primVSize);
+                        else
+                            secScale = std::min((screenWidth - primHSize * primScale) / secHSize, screenHeight / secVSize);
+                    }
                 }
 
                 if (integerScale)
